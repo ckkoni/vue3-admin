@@ -26,4 +26,15 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from) => {
+    //获取本地存储的token
+    const token = localStorage.getItem('token');
+
+    if (to.path !== '/login' && !token) {
+        return '/login';
+    } else {
+        return true;
+    }
+})
+
 export default router
