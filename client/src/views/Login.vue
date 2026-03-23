@@ -23,7 +23,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from '../utils/request'
+// import axios from '../utils/request'
 
 const router = useRouter();
 //加载状态
