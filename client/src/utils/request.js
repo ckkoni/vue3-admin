@@ -34,7 +34,8 @@ service.interceptors.response.use(
         return res;
     },
     (error) => {
-        ElMessage.error('请求失败:' + error.message);
+        const message = error?.response?.data?.msg || error.message || '请求失败';
+        ElMessage.error(message);
         return Promise.reject(error);
     }
 )

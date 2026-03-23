@@ -23,7 +23,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-// import axios from '../utils/request'
+import service from '../utils/request'
 
 const router = useRouter();
 //加载状态
@@ -51,17 +51,21 @@ const handleLogin = async() => {
         await loginFormRef.value.validate();
         loading.value = true;
 
-        //先使用模拟接口
-        if (loginForm.username === 'admin' && loginForm.password === '123456') {
-            //模拟后端返回的token
-            const token = 'xyagxygx';
-            localStorage.setItem('token', token);
-            router.push('/');
-        } else {
-            ElMessage.error('账号或密码错误');
-        }
+        //调用后端登录接口
+        const res = await service.post('/api/login', loginForm);
+        //保存token和用户信息
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('username', res.data.username);
+        localStorage.setItem('role', res.data.role);
+        //跳转首页
+        router.push('/');
+        
     } catch (error) {
-        console.error('表单验证失败:', error);
+        // 登录失败提示已在 axios 响应拦截器中统一处理
+        // 这里只保留兜底日志，避免账号密码错误时重复报错输出
+        if (!error?.response) {
+            console.error('登录流程异常:', error);
+        }
     } finally {
         loading.value = false;
     }
