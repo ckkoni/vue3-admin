@@ -1,24 +1,98 @@
 <template>
-    <div class="login">
-        <h2>管理员登陆</h2>
-        <el-input v-model="username" placeholder="请输入用户名"/>
-        <el-input v-model="password" placeholder="请输入密码" type="password"/>
-        <el-button type="primary" @click="login">登陆</el-button>
+    <div class="login-container">
+        <div class="login-box">
+            <h2 class="login-title">后台管理系统</h2>
+            <el-form 
+            ref="loginFormRef" :model="loginForm" :rules="loginRules" label-width="80px"
+            class="login-form"
+            >
+              <el-form-item label="账号" prop="username">
+                <el-input v-model="loginForm.username" placeholder="请输入账号"/>
+              </el-form-item>
+              <el-form-item label="密码" prop="password">
+                <el-input v-model="loginForm.password" placeholder="请输入密码" type="password"/>
+              </el-form-item>
+              <el-form-item class="login-btn">
+                <el-button type="primary" @click="handleLogin" :loading="loading" style="width: 100%">登录</el-button>
+              </el-form-item>
+            </el-form>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-const router = useRouter();
-const username = ref('');
-const password = ref('');
+import axios from '../utils/request'
 
-const login = () => {
-    console.log('点击登录')
-    if (username.value && password.value) {
-        localStorage.setItem('token', '123456')
-        router.push('/')
+const router = useRouter();
+//加载状态
+const loading = ref(false);
+//表单引用
+const loginFormRef = ref(null);
+//表单数据
+const loginForm = reactive({
+    username: '',
+    password: ''
+})
+//表单验证规则
+const loginRules = reactive({
+    username: [
+        { required: true, message: '请输入账号', trigger: 'blur' }
+    ],
+    password: [
+        { required: true, message: '请输入密码', trigger: 'blur' }
+    ]
+})
+
+const handleLogin = async() => {
+    //表单验证
+    try {
+        await loginFormRef.value.validate();
+        loading.value = true;
+
+        //先使用模拟接口
+        if (loginForm.username === 'admin' && loginForm.password === '123456') {
+            //模拟后端返回的token
+            const token = 'xyagxygx';
+            localStorage.setItem('token', token);
+            router.push('/');
+        } else {
+            ElMessage.error('账号或密码错误');
+        }
+    } catch (error) {
+        console.error('表单验证失败:', error);
+    } finally {
+        loading.value = false;
     }
 };
 </script>
+
+<style scoped>
+.login-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-box {
+    width: 400px;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px  rgba(0, 0, 0, 0.1);
+}
+.login-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1989fa;
+}
+.login-form {
+    margin-top: 20px;
+}
+.login-btn {
+    margin-bottom: 0;
+}
+</style>
